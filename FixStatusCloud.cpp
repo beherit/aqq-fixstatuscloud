@@ -182,14 +182,16 @@ UnicodeString FrendlyFormatJID(UnicodeString JID)
 //---------------------------------------------------------------------------
 
 //Sprawdzanie czy dzwieki w AQQ sa wlaczone
-bool SoundsEnabled()
+bool ChkSoundEnabled()
 {
   TStrings* IniList = new TStringList();
   IniList->SetText((wchar_t*)PluginLink.CallService(AQQ_FUNCTION_FETCHSETUP,0,0));
   TMemIniFile *Settings = new TMemIniFile(ChangeFileExt(Application->ExeName, ".INI"));
   Settings->SetStrings(IniList);
-  UnicodeString pSoundsEnabled = Settings->ReadString("Sound","SoundOff","1");
-  return !StrToBool(pSoundsEnabled);
+  delete IniList;
+  UnicodeString SoundOff = Settings->ReadString("Sound","SoundOff","0");
+  delete Settings;
+  return !StrToBool(SoundOff);  
 }
 //---------------------------------------------------------------------------
 
@@ -427,15 +429,19 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 			PluginShowInfo.Text = Status.w_str();
 			PluginShowInfo.ImagePath = L"";
 			PluginShowInfo.TimeOut = CloudTimeOutVal * 1000;
-			if(Resource.IsEmpty()) PluginShowInfo.ActionID = ("EXEC_MSG:" + IntToStr(UserIdx) + ";" + JID).w_str();
-			else PluginShowInfo.ActionID = ("EXEC_MSG:" + IntToStr(UserIdx) + ";" + JID + "/" + Resource).w_str();
+			if(OpenMsgChk)
+			{
+			  if(Resource.IsEmpty()) PluginShowInfo.ActionID = ("EXEC_MSG:" + IntToStr(UserIdx) + ";" + JID).w_str();
+			  else PluginShowInfo.ActionID = ("EXEC_MSG:" + IntToStr(UserIdx) + ";" + JID + "/" + Resource).w_str();
+			}
+			else PluginShowInfo.ActionID = L"";
 			PluginLink.CallService(AQQ_FUNCTION_SHOWINFO,0,(LPARAM)(&PluginShowInfo));
 		  }
 		}
 		//Odtworzenie dzwieku
-		if((PlaySoundChk)&&(SoundsEnabled())) PluginLink.CallService(AQQ_SYSTEM_PLAYSOUND,SOUND_STATUS,1);
+		if((PlaySoundChk)&&(ChkSoundEnabled())) PluginLink.CallService(AQQ_SYSTEM_PLAYSOUND,SOUND_STATUS,1);
 		//Google TTS
-		if((GoogleTTSChk)&&(SoundsEnabled())&&(lParam!=CONTACT_UPDATE_ONLYSTATUS))
+		if((GoogleTTSChk)&&(ChkSoundEnabled())&&(lParam!=CONTACT_UPDATE_ONLYSTATUS))
 		{
 		  //Pobieranie stanu kontatku
 		  int State = ContactsUpdateContact->State;
@@ -491,7 +497,7 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 //Hook na zaznaczenie kontaktu na liscie
 int __stdcall OnContactSelected(WPARAM wParam, LPARAM lParam)
 {
-  if((hSettingsForm)&&(hSettingsForm->Visible))
+  if((!ForceUnloadExecuted)&&(hSettingsForm)&&(hSettingsForm->Visible))
   {
 	//Pobranie danych dotyczacych kontatku
 	ContactSelectedContact = (PPluginContact)lParam;
@@ -549,25 +555,25 @@ int __stdcall OnReplyList(WPARAM wParam, LPARAM lParam)
 //Hook na polaczenie sieci przy starcie AQQA
 int __stdcall OnSetLastState(WPARAM wParam, LPARAM lParam)
 {
-  //Zmienna nowego stanu
-  int NewState;
   //Pobieranie ilosci kont
   int UserIdxCount = PluginLink.CallService(AQQ_FUNCTION_GETUSEREXCOUNT,0,0);
   //Sprawdzanie stanu sieci
   for(int UserIdx=0;UserIdx<UserIdxCount;UserIdx++)
   {
+    //Pobieranie stanu sieci
 	TPluginStateChange PluginStateChange;
 	PluginLink.CallService(AQQ_FUNCTION_GETNETWORKSTATE,(WPARAM)(&PluginStateChange),UserIdx);
-	NewState = (int)PluginStateChange.NewState;
-	if(NewState) UserIdx = UserIdxCount;
-  }
-  //OnLine - Connected
-  if(NewState)
-  {
-	//Blokowanie dzialania wtyczki
-	BlockFunction = true;
-	//Tworzenie timera do odblokowania dzialania wtyczki
-	SetTimer(hTimerFrm,TIMER_UNBLOCKFUNCTION,10000,(TIMERPROC)TimerFrmProc);
+	int NewState = PluginStateChange.NewState;
+	//Connected
+	if(NewState)
+	{
+	  //Blokowanie dzialania wtyczki
+	  BlockFunction = true;
+	  //Tworzenie timera do odblokowania dzialania wtyczki
+	  SetTimer(hTimerFrm,TIMER_UNBLOCKFUNCTION,10000,(TIMERPROC)TimerFrmProc);
+	  //Zakonczenie petli
+	  UserIdx = UserIdxCount;
+	}
   }
 
   return 0;
@@ -609,31 +615,25 @@ int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 	//Definicja niezbednych zmiennych
 	StateChange = (PPluginStateChange)lParam;
 	int NewState = StateChange->NewState;
-	int OldState = StateChange->OldState;
 	bool Authorized = StateChange->Authorized;
-	//OnLine - Connecting
-	if((NewState)&&(!Authorized))
+	//Connecting
+	if((!Authorized)&&(NewState))
+	 //Ustawianie stanu stanu polaczenia sieci
 	 NetworkConnecting = true;
-	//OnLine - Connected
-	if((NetworkConnecting)&&(Authorized)&&(NewState==OldState))
+	//Connected
+	else if((NetworkConnecting)&&(Authorized)&&(NewState))
 	{
-	  TPluginStateChange PluginStateChange;
-	  PluginLink.CallService(AQQ_FUNCTION_GETNETWORKSTATE,(WPARAM)(&PluginStateChange),StateChange->UserIdx);
-	  int cNewState = PluginStateChange.NewState;
-	  int cOldState = PluginStateChange.OldState;
-	  if((cNewState==cOldState)&&(cNewState==NewState)&&(cOldState==OldState))
-	  {
-		//Blokowanie dzialania wtyczki
-		BlockFunction = true;
-		//Tworzenie timera do odblokowania dzialania wtyczki
-		KillTimer(hTimerFrm,TIMER_UNBLOCKFUNCTION);
-		SetTimer(hTimerFrm,TIMER_UNBLOCKFUNCTION,10000,(TIMERPROC)TimerFrmProc);
-		NetworkConnecting = false;
-	  }
-	  else
-	   NetworkConnecting = false;
+	  //Blokowanie dzialania wtyczki
+	  BlockFunction = true;
+	  //Tworzenie timera do odblokowania dzialania wtyczki
+	  KillTimer(hTimerFrm,TIMER_UNBLOCKFUNCTION);
+	  SetTimer(hTimerFrm,TIMER_UNBLOCKFUNCTION,10000,(TIMERPROC)TimerFrmProc);
+	  //Ustawianie stanu polaczenia sieci
+	  NetworkConnecting = false;
 	}
-	else if((NetworkConnecting)&&(Authorized)&&(NewState!=OldState))
+	//Disconnected
+	else if((NetworkConnecting)&&(Authorized)&&(!NewState))
+	 //Ustawianie stanu stanu polaczenia sieci
 	 NetworkConnecting = false;
   }
 
@@ -1012,7 +1012,7 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = L"FixStatusCloud";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,0,0,0);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,0,1,0);
   PluginInfo.Description = L"Poprawia funkcjonalnoœæ chmurki informacyjnej zmiany statusu kontaktu.";
   PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";
