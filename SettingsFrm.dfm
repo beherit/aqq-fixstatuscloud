@@ -369,7 +369,7 @@ object SettingsForm: TSettingsForm
       end
       object CloudTimeOutSpinEdit: TsSpinEdit
         Left = 160
-        Top = 168
+        Top = 176
         Width = 38
         Height = 21
         TabOrder = 6
@@ -434,14 +434,16 @@ object SettingsForm: TSettingsForm
       object GoogleTTSCheckBox: TsCheckBox
         Left = 12
         Top = 142
-        Width = 228
-        Height = 20
-        Caption = 'Czytaj zmiany stanu za pomoc'#261' Google TTS'
+        Width = 240
+        Height = 28
+        Caption = 'Czytaj zmiany stanu za pomoc'#261' Google TTS lub wtyczki SayAQQ'
+        AutoSize = False
         TabOrder = 5
         OnClick = aEnableSaveButtonExecute
         SkinData.SkinSection = 'CHECKBOX'
         ImgChecked = 0
         ImgUnchecked = 0
+        WordWrap = True
       end
     end
   end

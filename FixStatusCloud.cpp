@@ -5,6 +5,7 @@
 #include <PluginAPI.h>
 #include "SettingsFrm.h"
 #include <IdHashMessageDigest.hpp>
+#define SAYAQQ_SYSTEM_SAYTEXT L"SayAQQ/System/SayText"
 
 int WINAPI DllEntryPoint(HINSTANCE hinst, unsigned long reason, void* lpReserved)
 {
@@ -483,8 +484,16 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 			//Niewidoczny
 			else if(State==6) TextToSpeech = "\"" + Nick + " siê ukrywa\"!";
 		  }
-		  //Czytanie tekstu
-		  PluginLink.CallService(AQQ_FUNCTION_SAY,(WPARAM)TextToSpeech.w_str(),0);
+		  //Proba przeczytania tekstu przez wtyczke SayAQQ
+		  TPluginHook PluginHook;
+		  PluginHook.HookName = SAYAQQ_SYSTEM_SAYTEXT;
+		  PluginHook.wParam = 0;
+		  PluginHook.lParam = (LPARAM)TextToSpeech.w_str();
+		  if(PluginLink.CallService(AQQ_SYSTEM_SENDHOOK,(WPARAM)(&PluginHook),0)!=1)
+		  {
+			//Czytanie tekstu przez wbuduwany system
+			PluginLink.CallService(AQQ_FUNCTION_SAY,(WPARAM)TextToSpeech.w_str(),0);
+		  }
 		}
 	  }
 	}
@@ -1012,7 +1021,7 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = L"FixStatusCloud";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,0,1,0);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,0,0);
   PluginInfo.Description = L"Poprawia funkcjonalnoœæ chmurki informacyjnej zmiany statusu kontaktu.";
   PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";
