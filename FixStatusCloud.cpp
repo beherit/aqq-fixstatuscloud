@@ -1,3 +1,24 @@
+//---------------------------------------------------------------------------
+// Copyright (C) 2013 Krzysztof Grochocki
+//
+// This file is part of FixStatusCloud
+//
+// FixStatusCloud is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 3, or (at your option)
+// any later version.
+//
+// FixStatusCloud is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU Radio; see the file COPYING. If not, write to
+// the Free Software Foundation, Inc., 51 Franklin Street,
+// Boston, MA 02110-1301, USA.
+//---------------------------------------------------------------------------
+
 #include <vcl.h>
 #include <windows.h>
 #pragma hdrstop
@@ -22,15 +43,6 @@ TPluginInfo PluginInfo;
 TPluginAction FixStatusCloudFastItem;
 //Szybki-dostep-do-ustawien-wtyczki------------------------------------------
 TPluginAction FixStatusCloudFastSettingsItem;
-//Inne-niezbedne-struktury---------------------------------------------------
-PPluginShowInfo ShowInfo;
-PPluginContact ContactsUpdateContact;
-PPluginContact ContactSelectedContact;
-PPluginContact ReplyListContact;
-PPluginContact SystemPopUContact;
-PPluginWindowEvent WindowEvent;
-PPluginStateChange StateChange;
-PPluginPopUp PopUp;
 //Lista-nickow-kontatkow-----------------------------------------------------
 TStringList *ContactList = new TStringList;
 TCustomIniFile* ContactsNickList = new TMemIniFile(ChangeFileExt(Application->ExeName, ".INI"));
@@ -142,6 +154,18 @@ bool ChkThemeGlowing()
   UnicodeString GlowingEnabled = Settings->ReadString("Theme","ThemeGlowing","1");
   delete Settings;
   return StrToBool(GlowingEnabled);
+}
+//---------------------------------------------------------------------------
+
+//Pobieranie ustawien koloru AlphaControls
+int GetHUE()
+{
+  return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETHUE,0,0);
+}
+//---------------------------------------------------------------------------
+int GetSaturation()
+{
+  return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETSATURATION,0,0);
 }
 //---------------------------------------------------------------------------
 
@@ -375,9 +399,9 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
   if(!ForceUnloadExecuted)
   {
 	//Pobranie danych dotyczacych kontatku
-	ContactsUpdateContact = (PPluginContact)wParam;
-	UnicodeString Nick = (wchar_t*)ContactsUpdateContact->Nick;
-	UnicodeString JID = (wchar_t*)ContactsUpdateContact->JID;
+	TPluginContact ContactsUpdateContact = *(PPluginContact)wParam;
+	UnicodeString Nick = (wchar_t*)ContactsUpdateContact.Nick;
+	UnicodeString JID = (wchar_t*)ContactsUpdateContact.JID;
 	//Zapisywanie nicku kontatku
 	ContactsNickList->WriteString("Nick",JID,Nick);
 	//Otwieranie pliku INI kontatku
@@ -399,8 +423,8 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
       ||((ModeChk==2)&&((ExceptionsList->IndexOf(JID)!=-1)||((MultiExceptionsChk)&&(MultiExceptionsList->IndexOf(Nick)!=-1)))))
 	  {
 		//Pobranie szczegolowych danych dotyczacych kontatku
-		UnicodeString Resource = (wchar_t*)ContactsUpdateContact->Resource;
-		int UserIdx = ContactsUpdateContact->UserIdx;
+		UnicodeString Resource = (wchar_t*)ContactsUpdateContact.Resource;
+		int UserIdx = ContactsUpdateContact.UserIdx;
 		//Dodawanie kontaktu do listy
 		if(ContactList->IndexOf(Nick)==-1) ContactList->Add(Nick);
 		//Pokazanie chmurki informacyjnej
@@ -408,7 +432,7 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 		PluginShowInfo.cbSize = sizeof(TPluginShowInfo);
 		PluginShowInfo.Event = tmePseudoStatus;
 		PluginShowInfo.Text = Nick.w_str();
-		PluginShowInfo.ImagePath = (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETPNG_FILEPATH,PluginLink.CallService(AQQ_FUNCTION_GETSTATEPNG_INDEX,0,(LPARAM)(ContactsUpdateContact)),0);
+		PluginShowInfo.ImagePath = (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_GETPNG_FILEPATH,PluginLink.CallService(AQQ_FUNCTION_GETSTATEPNG_INDEX,0,(LPARAM)&ContactsUpdateContact),0);
 		PluginShowInfo.TimeOut = CloudTimeOutVal * 1000;
 		if(OpenMsgChk)
 		{
@@ -421,7 +445,7 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 		//Pokazanie dodatkowej chmurki z opisem
 		if(ShowStatusChk)
 		{
-		  UnicodeString Status = (wchar_t*)ContactsUpdateContact->Status;
+		  UnicodeString Status = (wchar_t*)ContactsUpdateContact.Status;
 		  Status = Status.Trim();
 		  if(!Status.IsEmpty())
 		  {
@@ -445,7 +469,7 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 		if((GoogleTTSChk)&&(ChkSoundEnabled())&&(lParam!=CONTACT_UPDATE_ONLYSTATUS))
 		{
 		  //Pobieranie stanu kontatku
-		  int State = ContactsUpdateContact->State;
+		  int State = ContactsUpdateContact.State;
 		  //Zmienna tekstu do przeczytania
 		  UnicodeString TextToSpeech;
 		  //Male
@@ -509,9 +533,9 @@ int __stdcall OnContactSelected(WPARAM wParam, LPARAM lParam)
   if((!ForceUnloadExecuted)&&(hSettingsForm)&&(hSettingsForm->Visible))
   {
 	//Pobranie danych dotyczacych kontatku
-	ContactSelectedContact = (PPluginContact)lParam;
-	UnicodeString Nick = (wchar_t*)ContactSelectedContact->Nick;
-	UnicodeString JID = (wchar_t*)ContactSelectedContact->JID;
+	TPluginContact ContactSelectedContact = *(PPluginContact)lParam;
+	UnicodeString Nick = (wchar_t*)ContactSelectedContact.Nick;
+	UnicodeString JID = (wchar_t*)ContactSelectedContact.JID;
 	//Dodawanie kontatku na formie
 	hSettingsForm->ContactEdit->Text = Nick + " (" + FrendlyFormatJID(JID) +")";
 	hSettingsForm->ContactJIDEdit->Text = JID;
@@ -540,9 +564,9 @@ int __stdcall OnReplyList(WPARAM wParam, LPARAM lParam)
   if((wParam==ReplyListID)&&(!ForceUnloadExecuted))
   {
 	//Pobranie danych dotyczacych kontatku
-	ReplyListContact = (PPluginContact)lParam;
-	UnicodeString JID = (wchar_t*)ReplyListContact->JID;
-	UnicodeString Nick = (wchar_t*)ReplyListContact->Nick;
+	TPluginContact ReplyListContact = *(PPluginContact)lParam;
+	UnicodeString JID = (wchar_t*)ReplyListContact.JID;
+	UnicodeString Nick = (wchar_t*)ReplyListContact.Nick;
 	//Zapisywanie nicku kontatku
 	ContactList->Add(Nick);
 	ContactsNickList->WriteString("Nick",JID,Nick);
@@ -595,14 +619,14 @@ int __stdcall OnShowInfo(WPARAM wParam, LPARAM lParam)
   if(!ForceUnloadExecuted)
   {
 	//Pobieranie danych dotyczacych chmurki informacyjnej
-	ShowInfo = (PPluginShowInfo)lParam;
+	TPluginShowInfo ShowInfo = *(PPluginShowInfo)lParam;
 	//Pobranie tekstu chmurki
-	UnicodeString Text = (wchar_t*)ShowInfo->Text;
+	UnicodeString Text = (wchar_t*)ShowInfo.Text;
 	//Tekst chmurki zawiera nick kontatku
 	if(ContactList->IndexOf(Text)!=-1)
 	{
 	  //Pobranie akcji chmurki
-	  UnicodeString ActionID = (wchar_t*)ShowInfo->ActionID;
+	  UnicodeString ActionID = (wchar_t*)ShowInfo.ActionID;
 	  //Akcja chmurki jest "pusta"
 	  if(ActionID.Pos("session")==1)
 	  {
@@ -622,9 +646,9 @@ int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
   if(!ForceUnloadExecuted)
   {
 	//Definicja niezbednych zmiennych
-	StateChange = (PPluginStateChange)lParam;
-	int NewState = StateChange->NewState;
-	bool Authorized = StateChange->Authorized;
+	TPluginStateChange StateChange = *(PPluginStateChange)lParam;
+	int NewState = StateChange.NewState;
+	bool Authorized = StateChange.Authorized;
 	//Connecting
 	if((!Authorized)&&(NewState))
 	 //Ustawianie stanu stanu polaczenia sieci
@@ -653,16 +677,16 @@ int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 //Hook na pokazywanie popupmenu
 int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 {
-  PopUp = (PPluginPopUp)lParam;
+  TPluginPopUp PopUp = *(PPluginPopUp)lParam;
   //Pobieranie nazwy popupmenu
-  UnicodeString PopUpName = (wchar_t*)PopUp->Name;
+  UnicodeString PopUpName = (wchar_t*)PopUp.Name;
   //Popupmenu dostepne spod PPM na kontakcie w oknie kontaktow
   if(PopUpName=="muItem")
   {
 	//Pobieranie danych kontatku
-	SystemPopUContact = (PPluginContact)wParam;
+	TPluginContact SystemPopUContact = *(PPluginContact)wParam;
 	//Pobieranie identyfikatora kontatku
-	ContactJID = (wchar_t*)SystemPopUContact->JID;
+	ContactJID = (wchar_t*)SystemPopUContact.JID;
 	//Kontakt znajduje sie na liscie wyjatkow
 	if(ExceptionsList->IndexOf(ContactJID)!=-1) ChangeFixStatusCloudFastItem(true);
 	//Kontakt nie znajduje sie na liscie
@@ -687,12 +711,18 @@ int __stdcall OnThemeChanged(WPARAM wParam, LPARAM lParam)
 	  //Plik zaawansowanej stylizacji okien istnieje
 	  if(FileExists(ThemeSkinDir + "\\\\Skin.asz"))
 	  {
+		//Dane pliku zaawansowanej stylizacji okien
 		ThemeSkinDir = StringReplace(ThemeSkinDir, "\\\\", "\\", TReplaceFlags() << rfReplaceAll);
 		hSettingsForm->sSkinManager->SkinDirectory = ThemeSkinDir;
 		hSettingsForm->sSkinManager->SkinName = "Skin.asz";
+		//Ustawianie animacji AlphaControls
 		if(ChkThemeAnimateWindows()) hSettingsForm->sSkinManager->AnimEffects->FormShow->Time = 200;
 		else hSettingsForm->sSkinManager->AnimEffects->FormShow->Time = 0;
 		hSettingsForm->sSkinManager->Effects->AllowGlowing = ChkThemeGlowing();
+		//Zmiana kolorystyki AlphaControls
+		hSettingsForm->sSkinManager->HueOffset = GetHUE();
+	    hSettingsForm->sSkinManager->Saturation = GetSaturation();
+		//Aktywacja skorkowania AlphaControls
 		hSettingsForm->sSkinManager->Active = true;
 	  }
 	  //Brak pliku zaawansowanej stylizacji okien
@@ -712,9 +742,9 @@ int __stdcall OnWindowEvent(WPARAM wParam, LPARAM lParam)
   if(!ForceUnloadExecuted)
   {
 	//Pobranie informacji o oknie i eventcie
-	WindowEvent = (PPluginWindowEvent)lParam;
-	int Event = WindowEvent->WindowEvent;
-	UnicodeString ClassName = (wchar_t*)WindowEvent->ClassName;
+	TPluginWindowEvent WindowEvent = *(PPluginWindowEvent)lParam;
+	int Event = WindowEvent.WindowEvent;
+	UnicodeString ClassName = (wchar_t*)WindowEvent.ClassName;
 	//Zamkniecie wizytowki kontaktu
 	if(((ClassName=="TfrmVCard")||(ClassName=="TInputQueryForm"))&&(Event==WINDOW_EVENT_CLOSE))
 	{
@@ -1021,7 +1051,7 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = L"FixStatusCloud";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,0,0);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,2,0);
   PluginInfo.Description = L"Poprawia funkcjonalnoœæ chmurki informacyjnej zmiany statusu kontaktu.";
   PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";
