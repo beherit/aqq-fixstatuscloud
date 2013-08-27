@@ -1,3 +1,7 @@
+1.1.2.2
+-----
+* Ma³a poprawka w obs³udze kolorystyki stylizacji okien.
+
 1.1.2.0
 -----
 * Obs³uga kolorystyki stylizacji okien (barwa i nasycenie).
