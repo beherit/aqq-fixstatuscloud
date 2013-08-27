@@ -80,6 +80,7 @@ int FASTACCESS;
 #define TIMER_CHKSETTINGS 20
 //FORWARD-AQQ-HOOKS----------------------------------------------------------
 int __stdcall OnBeforeUnload(WPARAM wParam, LPARAM lParam);
+int __stdcall OnColorChange(WPARAM wParam, LPARAM lParam);
 int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam);
 int __stdcall OnContactSelected(WPARAM wParam, LPARAM lParam);
 int __stdcall OnListReady(WPARAM wParam, LPARAM lParam);
@@ -388,6 +389,24 @@ int __stdcall OnBeforeUnload(WPARAM wParam, LPARAM lParam)
 {
   //Info o rozpoczeciu procedury zamykania komunikatora
   ForceUnloadExecuted = true;
+
+  return 0;
+}
+//---------------------------------------------------------------------------
+
+//Hook na zmiane kolorystyki AlphaControls
+int __stdcall OnColorChange(WPARAM wParam, LPARAM lParam)
+{
+  //Okno ustawien zostalo juz stworzone
+  if(hSettingsForm)
+  {
+	//Wlaczona zaawansowana stylizacja okien
+	if(ChkSkinEnabled())
+	{
+	  hSettingsForm->sSkinManager->HueOffset = wParam;
+	  hSettingsForm->sSkinManager->Saturation = lParam;
+	}
+  }
 
   return 0;
 }
@@ -902,6 +921,8 @@ extern "C" int __declspec(dllexport) __stdcall Load(PPluginLink Link)
   FASTACCESS = PluginLink.CallService(AQQ_ICONS_LOADPNGICON,0, (LPARAM)(GetPluginUserDir() + "\\\\FixStatusCloud\\\\FastAccess.png").w_str());
   //Hook na wylaczenie komunikatora poprzez usera
   PluginLink.HookEvent(AQQ_SYSTEM_BEFOREUNLOAD,OnBeforeUnload);
+  //Hook na zmiane kolorystyki AlphaControls
+  PluginLink.HookEvent(AQQ_SYSTEM_COLORCHANGE,OnColorChange);
   //Hook na zmianê stanu kontaktu
   PluginLink.HookEvent(AQQ_CONTACTS_UPDATE,OnContactsUpdate);
   //Hook na zaznaczenie kontaktu na liscie
@@ -1002,6 +1023,7 @@ extern "C" int __declspec(dllexport) __stdcall Unload()
   PluginLink.DestroyServiceFunction(ServiceFixStatusCloudFastSettingsItem);
   //Wyladowanie wszystkich hookow
   PluginLink.UnhookEvent(OnBeforeUnload);
+  PluginLink.UnhookEvent(OnColorChange);
   PluginLink.UnhookEvent(OnContactsUpdate);
   PluginLink.UnhookEvent(OnContactSelected);
   PluginLink.UnhookEvent(OnListReady);
@@ -1051,7 +1073,7 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = L"FixStatusCloud";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,2,0);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,2,2);
   PluginInfo.Description = L"Poprawia funkcjonalnoœæ chmurki informacyjnej zmiany statusu kontaktu.";
   PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";
