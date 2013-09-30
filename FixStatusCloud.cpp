@@ -79,20 +79,20 @@ int FASTACCESS;
 #define TIMER_UNBLOCKFUNCTION 10
 #define TIMER_CHKSETTINGS 20
 //FORWARD-AQQ-HOOKS----------------------------------------------------------
-int __stdcall OnBeforeUnload(WPARAM wParam, LPARAM lParam);
-int __stdcall OnColorChange(WPARAM wParam, LPARAM lParam);
-int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam);
-int __stdcall OnContactSelected(WPARAM wParam, LPARAM lParam);
-int __stdcall OnListReady(WPARAM wParam, LPARAM lParam);
-int __stdcall OnReplyList(WPARAM wParam, LPARAM lParam);
-int __stdcall OnSetLastState(WPARAM wParam, LPARAM lParam);
-int __stdcall OnShowInfo(WPARAM wParam, LPARAM lParam);
-int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam);
-int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam);
-int __stdcall OnThemeChanged(WPARAM wParam, LPARAM lParam);
-int __stdcall OnWindowEvent(WPARAM wParam, LPARAM lParam);
-int __stdcall ServiceFixStatusCloudFastItem(WPARAM wParam, LPARAM lParam);
-int __stdcall ServiceFixStatusCloudFastSettingsItem(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnBeforeUnload(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnColorChange(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnContactSelected(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnListReady(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnReplyList(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnSetLastState(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnShowInfo(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnStateChange(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnThemeChanged(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall OnWindowEvent(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall ServiceFixStatusCloudFastItem(WPARAM wParam, LPARAM lParam);
+INT_PTR __stdcall ServiceFixStatusCloudFastSettingsItem(WPARAM wParam, LPARAM lParam);
 //FORWARD-TIMER--------------------------------------------------------------
 LRESULT CALLBACK TimerFrmProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 //---------------------------------------------------------------------------
@@ -222,7 +222,7 @@ bool ChkSoundEnabled()
 //---------------------------------------------------------------------------
 
 //Serwis szybkiego wlaczenia/wylaczenia notyfikacji
-int __stdcall ServiceFixStatusCloudFastItem(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall ServiceFixStatusCloudFastItem(WPARAM wParam, LPARAM lParam)
 {
   //Dodawanie/usuwanie kontatku do/z listy wyjatkow
   if(ExceptionsList->IndexOf(ContactJID)!=-1) ExceptionsList->Delete(ExceptionsList->IndexOf(ContactJID));
@@ -295,7 +295,7 @@ void BuildFixStatusCloudFastItem()
 //---------------------------------------------------------------------------
 
 //Serwis szybkiego dostepu do ustawien wtyczki
-int __stdcall ServiceFixStatusCloudFastSettingsItem(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall ServiceFixStatusCloudFastSettingsItem(WPARAM wParam, LPARAM lParam)
 {
   //Przypisanie uchwytu do formy ustawien
   if(!hSettingsForm)
@@ -385,7 +385,7 @@ LRESULT CALLBACK TimerFrmProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 //---------------------------------------------------------------------------
 
 //Hook na wylaczenie komunikatora poprzez usera
-int __stdcall OnBeforeUnload(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnBeforeUnload(WPARAM wParam, LPARAM lParam)
 {
   //Info o rozpoczeciu procedury zamykania komunikatora
   ForceUnloadExecuted = true;
@@ -395,7 +395,7 @@ int __stdcall OnBeforeUnload(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na zmiane kolorystyki AlphaControls
-int __stdcall OnColorChange(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnColorChange(WPARAM wParam, LPARAM lParam)
 {
   //Okno ustawien zostalo juz stworzone
   if(hSettingsForm)
@@ -413,7 +413,7 @@ int __stdcall OnColorChange(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na zmiane stanu kontaktu
-int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 {
   if(!ForceUnloadExecuted)
   {
@@ -547,7 +547,7 @@ int __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na zaznaczenie kontaktu na liscie
-int __stdcall OnContactSelected(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnContactSelected(WPARAM wParam, LPARAM lParam)
 {
   if((!ForceUnloadExecuted)&&(hSettingsForm)&&(hSettingsForm->Visible))
   {
@@ -565,7 +565,7 @@ int __stdcall OnContactSelected(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na zaladowanie listy kontaktow
-int __stdcall OnListReady(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnListReady(WPARAM wParam, LPARAM lParam)
 {
   //Pobranie ID dla enumeracji kontaktów
   ReplyListID = GetTickCount();
@@ -577,7 +577,7 @@ int __stdcall OnListReady(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na enumeracje listy kontatkow
-int __stdcall OnReplyList(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnReplyList(WPARAM wParam, LPARAM lParam)
 {
   //Sprawdzanie ID wywolania enumerqacji
   if((wParam==ReplyListID)&&(!ForceUnloadExecuted))
@@ -605,7 +605,7 @@ int __stdcall OnReplyList(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na polaczenie sieci przy starcie AQQA
-int __stdcall OnSetLastState(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnSetLastState(WPARAM wParam, LPARAM lParam)
 {
   //Pobieranie ilosci kont
   int UserIdxCount = PluginLink.CallService(AQQ_FUNCTION_GETUSEREXCOUNT,0,0);
@@ -633,7 +633,7 @@ int __stdcall OnSetLastState(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na wyswietlanie chmurki informacyjnej
-int __stdcall OnShowInfo(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnShowInfo(WPARAM wParam, LPARAM lParam)
 {
   if(!ForceUnloadExecuted)
   {
@@ -660,7 +660,7 @@ int __stdcall OnShowInfo(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Notyfikacja zmiany stanu
-int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 {
   if(!ForceUnloadExecuted)
   {
@@ -694,7 +694,7 @@ int __stdcall OnStateChange(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na pokazywanie popupmenu
-int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 {
   TPluginPopUp PopUp = *(PPluginPopUp)lParam;
   //Pobieranie nazwy popupmenu
@@ -717,7 +717,7 @@ int __stdcall OnSystemPopUp(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na zmianê kompozycji
-int __stdcall OnThemeChanged(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnThemeChanged(WPARAM wParam, LPARAM lParam)
 {
   //Okno ustawien zostalo juz stworzone
   if(hSettingsForm)
@@ -756,7 +756,7 @@ int __stdcall OnThemeChanged(WPARAM wParam, LPARAM lParam)
 //---------------------------------------------------------------------------
 
 //Hook na zamkniecie/otwarcie okien
-int __stdcall OnWindowEvent(WPARAM wParam, LPARAM lParam)
+INT_PTR __stdcall OnWindowEvent(WPARAM wParam, LPARAM lParam)
 {
   if(!ForceUnloadExecuted)
   {
@@ -896,7 +896,7 @@ void LoadSettings()
 }
 //---------------------------------------------------------------------------
 
-extern "C" int __declspec(dllexport) __stdcall Load(PPluginLink Link)
+extern "C" INT_PTR __declspec(dllexport) __stdcall Load(PPluginLink Link)
 {
   //Linkowanie wtyczki z komunikatorem
   PluginLink = *Link;
@@ -1005,7 +1005,7 @@ extern "C" int __declspec(dllexport) __stdcall Load(PPluginLink Link)
 //---------------------------------------------------------------------------
 
 //Wyladowanie wtyczki
-extern "C" int __declspec(dllexport) __stdcall Unload()
+extern "C" INT_PTR __declspec(dllexport) __stdcall Unload()
 {
   //Wyladowanie timera
   KillTimer(hTimerFrm,TIMER_UNBLOCKFUNCTION);
@@ -1053,7 +1053,7 @@ extern "C" int __declspec(dllexport) __stdcall Unload()
 //---------------------------------------------------------------------------
 
 //Ustawienia wtyczki
-extern "C" int __declspec(dllexport)__stdcall Settings()
+extern "C" INT_PTR __declspec(dllexport)__stdcall Settings()
 {
   //Przypisanie uchwytu do formy ustawien
   if(!hSettingsForm)
@@ -1073,7 +1073,7 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
 {
   PluginInfo.cbSize = sizeof(TPluginInfo);
   PluginInfo.ShortName = L"FixStatusCloud";
-  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,2,2);
+  PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,3,0);
   PluginInfo.Description = L"Poprawia funkcjonalnoœæ chmurki informacyjnej zmiany statusu kontaktu.";
   PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";
