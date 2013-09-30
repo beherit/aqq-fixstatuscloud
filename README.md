@@ -12,7 +12,7 @@ Autorem wtyczki FixStatusCloud jest Krzysztof Grochocki. Możesz skontaktować s
 
 Licencja
 -------
-Wtyczka FixStatusCloud wykorzystuje licencję [GNU General Public License 3](http://www.gnu.org/copyleft/gpl.html).
+Wtyczka FixStatusCloud objęta jest licencją [GNU General Public License 3](http://www.gnu.org/copyleft/gpl.html).
 
     FixStatusCloud
     Copyright (C) 2013  Krzysztof Grochocki
