@@ -212,6 +212,10 @@ object SettingsForm: TSettingsForm
       Caption = 'Obs'#322'uga'
       SkinData.CustomColor = False
       SkinData.CustomFont = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object ContactJIDEdit: TsEdit
         Left = 23
         Top = 217
@@ -341,6 +345,10 @@ object SettingsForm: TSettingsForm
       Caption = 'Inne'
       SkinData.CustomColor = False
       SkinData.CustomFont = False
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object PlaySoundCheckBox: TsCheckBox
         Left = 12
         Top = 12
@@ -481,6 +489,7 @@ object SettingsForm: TSettingsForm
     ThirdParty.ThirdScrollControl = ' '#13#10
     ThirdParty.ThirdUpDown = ' '#13#10
     ThirdParty.ThirdScrollBar = ' '
+    ThirdParty.ThirdStaticText = ' '
     Left = 32
     Top = 296
   end

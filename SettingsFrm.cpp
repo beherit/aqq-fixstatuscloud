@@ -65,10 +65,6 @@ void __fastcall TSettingsForm::WMTransparency(TMessage &Message)
 
 void __fastcall TSettingsForm::FormCreate(TObject *Sender)
 {
-  //Hack na blad w AC
-  #if defined(_WIN64)
-  ContactsListView->SkinData->SkinSection = "";
-  #endif
   //Wlaczona zaawansowana stylizacja okien
   if(ChkSkinEnabled())
   {
