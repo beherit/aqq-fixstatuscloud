@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-// Copyright (C) 2013 Krzysztof Grochocki
+// Copyright (C) 2013-2014 Krzysztof Grochocki
 //
 // This file is part of FixStatusCloud
 //
@@ -295,3 +295,10 @@ void __fastcall TSettingsForm::aDeleteAllClick(TObject *Sender)
   else ContactsListView->Column[0]->Width = 228;
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TSettingsForm::sSkinManagerSysDlgInit(TacSysDlgData DlgData, bool &AllowSkinning)
+{
+  AllowSkinning = false;
+}
+//---------------------------------------------------------------------------
+

@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-// Copyright (C) 2013 Krzysztof Grochocki
+// Copyright (C) 2013-2014 Krzysztof Grochocki
 //
 // This file is part of FixStatusCloud
 //
@@ -90,6 +90,7 @@ __published:	// IDE-managed Components
 	void __fastcall aEnableSaveButtonExecute(TObject *Sender);
 	void __fastcall aDeleteAllClick(TObject *Sender);
 	void __fastcall aLoadSettingsLiteExecute(TObject *Sender);
+	void __fastcall sSkinManagerSysDlgInit(TacSysDlgData DlgData, bool &AllowSkinning);
 private:	// User declarations
 public:		// User declarations
 	__fastcall TSettingsForm(TComponent* Owner);
