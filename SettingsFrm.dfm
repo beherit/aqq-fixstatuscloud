@@ -212,12 +212,8 @@ object SettingsForm: TSettingsForm
       Caption = 'Obs'#322'uga'
       SkinData.CustomColor = False
       SkinData.CustomFont = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object ContactJIDEdit: TsEdit
-        Left = 23
+        Left = 21
         Top = 217
         Width = 129
         Height = 21
@@ -258,9 +254,9 @@ object SettingsForm: TSettingsForm
         SkinData.SkinSection = 'CHECKBOX'
       end
       object ContactsListView: TsListView
-        Left = 23
+        Left = 21
         Top = 60
-        Width = 250
+        Width = 254
         Height = 123
         BoundLabel.Indent = 0
         BoundLabel.Font.Charset = DEFAULT_CHARSET
@@ -288,7 +284,7 @@ object SettingsForm: TSettingsForm
         ViewStyle = vsReport
       end
       object ContactEdit: TsEdit
-        Left = 23
+        Left = 21
         Top = 217
         Width = 129
         Height = 21
@@ -307,7 +303,7 @@ object SettingsForm: TSettingsForm
         BoundLabel.UseSkinColor = True
       end
       object AddButton: TsButton
-        Left = 158
+        Left = 156
         Top = 215
         Width = 49
         Height = 25
@@ -317,9 +313,9 @@ object SettingsForm: TSettingsForm
         SkinData.SkinSection = 'BUTTON'
       end
       object DeleteButton: TsButton
-        Left = 213
+        Left = 211
         Top = 215
-        Width = 60
+        Width = 64
         Height = 25
         Caption = 'Usu'#324
         DropDownMenu = DeletePopupMenu
@@ -466,6 +462,7 @@ object SettingsForm: TSettingsForm
     MenuSupport.ExtraLineFont.Height = -11
     MenuSupport.ExtraLineFont.Name = 'Tahoma'
     MenuSupport.ExtraLineFont.Style = []
+    Options.OptimizingPriority = opMemory
     SkinDirectory = 'c:\Skins'
     SkinInfo = 'N/A'
     ThirdParty.ThirdEdits = 'THotKey'#13#10
@@ -490,6 +487,8 @@ object SettingsForm: TSettingsForm
     ThirdParty.ThirdUpDown = ' '#13#10
     ThirdParty.ThirdScrollBar = ' '
     ThirdParty.ThirdStaticText = ' '
+    ThirdParty.ThirdNativePaint = ' '
+    OnSysDlgInit = sSkinManagerSysDlgInit
     Left = 32
     Top = 296
   end
