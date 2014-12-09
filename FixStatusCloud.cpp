@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-// Copyright (C) 2013 Krzysztof Grochocki
+// Copyright (C) 2013-2014 Krzysztof Grochocki
 //
 // This file is part of FixStatusCloud
 //
@@ -169,13 +169,21 @@ int GetSaturation()
   return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETSATURATION,0,0);
 }
 //---------------------------------------------------------------------------
+int GetBrightness()
+{
+  return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETBRIGHTNESS,0,0);
+}
+//---------------------------------------------------------------------------
 
 //Pobieranie pseudonimu kontaktu podajac jego JID
 UnicodeString GetContactNick(UnicodeString JID)
 {
+  //Odczyt pseudonimu z pliku INI
   UnicodeString Nick = ContactsNickList->ReadString("Nick",JID,"");
+  //Pseudonim nie zostal pobrany
   if(Nick.IsEmpty())
   {
+	//Skracanie JID do ladniejszej formy
 	if(JID.Pos("@")) JID.Delete(JID.Pos("@"),JID.Length());
 	return JID;
   }
@@ -217,7 +225,7 @@ bool ChkSoundEnabled()
   delete IniList;
   UnicodeString SoundOff = Settings->ReadString("Sound","SoundOff","0");
   delete Settings;
-  return !StrToBool(SoundOff);  
+  return !StrToBool(SoundOff);
 }
 //---------------------------------------------------------------------------
 
@@ -403,8 +411,10 @@ INT_PTR __stdcall OnColorChange(WPARAM wParam, LPARAM lParam)
 	//Wlaczona zaawansowana stylizacja okien
 	if(ChkSkinEnabled())
 	{
-	  hSettingsForm->sSkinManager->HueOffset = wParam;
-	  hSettingsForm->sSkinManager->Saturation = lParam;
+	  TPluginColorChange ColorChange = *(PPluginColorChange)wParam;
+	  hSettingsForm->sSkinManager->HueOffset = ColorChange.Hue;
+	  hSettingsForm->sSkinManager->Saturation = ColorChange.Saturation;
+	  hSettingsForm->sSkinManager->Brightness = ColorChange.Brightness;
 	}
   }
 
@@ -740,7 +750,8 @@ INT_PTR __stdcall OnThemeChanged(WPARAM wParam, LPARAM lParam)
 		hSettingsForm->sSkinManager->Effects->AllowGlowing = ChkThemeGlowing();
 		//Zmiana kolorystyki AlphaControls
 		hSettingsForm->sSkinManager->HueOffset = GetHUE();
-	    hSettingsForm->sSkinManager->Saturation = GetSaturation();
+		hSettingsForm->sSkinManager->Saturation = GetSaturation();
+		hSettingsForm->sSkinManager->Brightness = GetBrightness();
 		//Aktywacja skorkowania AlphaControls
 		hSettingsForm->sSkinManager->Active = true;
 	  }
@@ -922,7 +933,7 @@ extern "C" INT_PTR __declspec(dllexport) __stdcall Load(PPluginLink Link)
   //Hook na wylaczenie komunikatora poprzez usera
   PluginLink.HookEvent(AQQ_SYSTEM_BEFOREUNLOAD,OnBeforeUnload);
   //Hook na zmiane kolorystyki AlphaControls
-  PluginLink.HookEvent(AQQ_SYSTEM_COLORCHANGE,OnColorChange);
+  PluginLink.HookEvent(AQQ_SYSTEM_COLORCHANGEV2,OnColorChange);
   //Hook na zmianê stanu kontaktu
   PluginLink.HookEvent(AQQ_CONTACTS_UPDATE,OnContactsUpdate);
   //Hook na zaznaczenie kontaktu na liscie
@@ -1079,6 +1090,8 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
   PluginInfo.AuthorMail = L"kontakt@beherit.pl";
   PluginInfo.Copyright = L"Krzysztof Grochocki (Beherit)";
   PluginInfo.Homepage = L"http://beherit.pl";
+  PluginInfo.Flag = 0;
+  PluginInfo.ReplaceDefaultModule = 0;
 
   return &PluginInfo;
 }
