@@ -70,7 +70,7 @@ __published:	// IDE-managed Components
 	TsCheckBox *PlaySoundCheckBox;
 	TsCheckBox *ShowStatusCheckBox;
 	TsSpinEdit *CloudTimeOutSpinEdit;
-	TsCheckBox *MultiExceptionsCheckBox;
+	TsCheckBox *SiblingsExceptionsCheckBox;
 	TsCheckBox *OnStatusChangedCheckBox;
 	TsCheckBox *OnOfflineCheckBox;
 	TPopupMenu *DeletePopupMenu;
@@ -91,6 +91,9 @@ __published:	// IDE-managed Components
 	void __fastcall aDeleteAllClick(TObject *Sender);
 	void __fastcall aLoadSettingsLiteExecute(TObject *Sender);
 	void __fastcall sSkinManagerSysDlgInit(TacSysDlgData DlgData, bool &AllowSkinning);
+	void __fastcall ContactsListViewChange(TObject *Sender, TListItem *Item, TItemChange Change);
+
+
 private:	// User declarations
 public:		// User declarations
 	__fastcall TSettingsForm(TComponent* Owner);

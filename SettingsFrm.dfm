@@ -4,7 +4,7 @@ object SettingsForm: TSettingsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'FixStatusCloud - ustawienia'
-  ClientHeight = 333
+  ClientHeight = 313
   ClientWidth = 316
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -151,11 +151,14 @@ object SettingsForm: TSettingsForm
   Position = poDesktopCenter
   OnCreate = FormCreate
   OnShow = FormShow
+  DesignSize = (
+    316
+    313)
   PixelsPerInch = 96
   TextHeight = 13
   object Bevel: TsBevel
     Left = 0
-    Top = 295
+    Top = 275
     Width = 316
     Height = 38
     Align = alBottom
@@ -165,41 +168,47 @@ object SettingsForm: TSettingsForm
   end
   object OkButton: TsButton
     Left = 71
-    Top = 303
+    Top = 283
     Width = 75
     Height = 25
+    Anchors = [akRight, akBottom]
     Caption = 'OK'
     TabOrder = 2
     OnClick = OkButtonClick
     SkinData.SkinSection = 'BUTTON'
+    ExplicitTop = 303
   end
   object CancelButton: TsButton
     Left = 152
-    Top = 303
+    Top = 283
     Width = 75
     Height = 25
+    Anchors = [akRight, akBottom]
     Caption = 'Anuluj'
     TabOrder = 1
     OnClick = aExitExecute
     SkinData.SkinSection = 'BUTTON'
+    ExplicitTop = 303
   end
   object SaveButton: TsButton
     Left = 233
-    Top = 303
+    Top = 283
     Width = 75
     Height = 25
+    Anchors = [akRight, akBottom]
     Caption = 'Zastosuj'
     Enabled = False
     TabOrder = 0
     OnClick = SaveButtonClick
     SkinData.SkinSection = 'BUTTON'
+    ExplicitTop = 303
   end
   object sPageControl: TsPageControl
     AlignWithMargins = True
     Left = 6
     Top = 6
     Width = 304
-    Height = 283
+    Height = 263
     Margins.Left = 6
     Margins.Top = 6
     Margins.Right = 6
@@ -208,17 +217,19 @@ object SettingsForm: TSettingsForm
     Align = alClient
     TabOrder = 3
     SkinData.SkinSection = 'PAGECONTROL'
+    ExplicitHeight = 283
     object MainTabSheet: TsTabSheet
       Caption = 'Obs'#322'uga'
       SkinData.CustomColor = False
       SkinData.CustomFont = False
+      ExplicitHeight = 255
       object ContactJIDEdit: TsEdit
         Left = 21
-        Top = 217
+        Top = 208
         Width = 129
         Height = 21
         TabStop = False
-        TabOrder = 7
+        TabOrder = 6
         Visible = False
         SkinData.SkinSection = 'EDIT'
         BoundLabel.Indent = 0
@@ -257,7 +268,7 @@ object SettingsForm: TSettingsForm
         Left = 21
         Top = 60
         Width = 254
-        Height = 123
+        Height = 140
         BoundLabel.Indent = 0
         BoundLabel.Font.Charset = DEFAULT_CHARSET
         BoundLabel.Font.Color = clWindowText
@@ -270,9 +281,9 @@ object SettingsForm: TSettingsForm
         SkinData.SkinSection = 'EDIT'
         Columns = <
           item
-            MaxWidth = 246
-            MinWidth = 228
-            Width = 246
+            MaxWidth = 250
+            MinWidth = 233
+            Width = 250
           end
           item
             Width = 0
@@ -282,14 +293,15 @@ object SettingsForm: TSettingsForm
         ShowColumnHeaders = False
         TabOrder = 2
         ViewStyle = vsReport
+        OnChange = ContactsListViewChange
       end
       object ContactEdit: TsEdit
         Left = 21
-        Top = 217
+        Top = 208
         Width = 129
         Height = 21
         ReadOnly = True
-        TabOrder = 4
+        TabOrder = 3
         TextHint = ' zaznacz kontakt...'
         SkinData.SkinSection = 'EDIT'
         BoundLabel.Indent = 0
@@ -304,56 +316,41 @@ object SettingsForm: TSettingsForm
       end
       object AddButton: TsButton
         Left = 156
-        Top = 215
+        Top = 206
         Width = 49
         Height = 25
         Caption = 'Dodaj'
-        TabOrder = 5
+        TabOrder = 4
         OnClick = AddButtonClick
         SkinData.SkinSection = 'BUTTON'
       end
       object DeleteButton: TsButton
         Left = 211
-        Top = 215
+        Top = 206
         Width = 64
         Height = 25
         Caption = 'Usu'#324
         DropDownMenu = DeletePopupMenu
         Style = bsSplitButton
-        TabOrder = 6
+        TabOrder = 5
         OnClick = DeleteButtonClick
         SkinData.SkinSection = 'BUTTON'
-      end
-      object MultiExceptionsCheckBox: TsCheckBox
-        Left = 31
-        Top = 189
-        Width = 224
-        Height = 20
-        Caption = 'Uwzgl'#281'dniaj kontakty z tym samym nickiem'
-        TabOrder = 3
-        OnClick = aEnableSaveButtonExecute
-        SkinData.SkinSection = 'CHECKBOX'
-        ImgChecked = 0
-        ImgUnchecked = 0
       end
     end
     object OtherTabSheet: TsTabSheet
       Caption = 'Inne'
       SkinData.CustomColor = False
       SkinData.CustomFont = False
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 255
       object PlaySoundCheckBox: TsCheckBox
         Left = 12
-        Top = 12
+        Top = 38
         Width = 253
         Height = 20
         Caption = 'Odtwarzaj d'#378'wi'#281'k powiadomienia zmiany statusu'
         Checked = True
         State = cbChecked
-        TabOrder = 0
+        TabOrder = 1
         OnClick = aEnableSaveButtonExecute
         SkinData.SkinSection = 'CHECKBOX'
         ImgChecked = 0
@@ -361,11 +358,11 @@ object SettingsForm: TSettingsForm
       end
       object ShowStatusCheckBox: TsCheckBox
         Left = 12
-        Top = 38
+        Top = 64
         Width = 178
         Height = 20
         Caption = 'Pokazuj opis kontaktu w chmurce'
-        TabOrder = 1
+        TabOrder = 2
         OnClick = aEnableSaveButtonExecute
         SkinData.SkinSection = 'CHECKBOX'
         ImgChecked = 0
@@ -373,10 +370,10 @@ object SettingsForm: TSettingsForm
       end
       object CloudTimeOutSpinEdit: TsSpinEdit
         Left = 160
-        Top = 176
+        Top = 202
         Width = 38
         Height = 21
-        TabOrder = 6
+        TabOrder = 7
         Text = '5'
         OnChange = aEnableSaveButtonExecute
         SkinData.SkinSection = 'EDIT'
@@ -397,13 +394,13 @@ object SettingsForm: TSettingsForm
       end
       object OnStatusChangedCheckBox: TsCheckBox
         Left = 12
-        Top = 64
+        Top = 90
         Width = 259
         Height = 20
         Caption = 'Informuj r'#243'wnie'#380' gdy kontakt zmieni jedynie opisu'
         Checked = True
         State = cbChecked
-        TabOrder = 2
+        TabOrder = 3
         OnClick = aEnableSaveButtonExecute
         SkinData.SkinSection = 'CHECKBOX'
         ImgChecked = 0
@@ -411,11 +408,11 @@ object SettingsForm: TSettingsForm
       end
       object OnOfflineCheckBox: TsCheckBox
         Left = 12
-        Top = 90
+        Top = 116
         Width = 223
         Height = 20
         Caption = 'Informuj przy zmianie stanu na roz'#322#261'czony'
-        TabOrder = 3
+        TabOrder = 4
         OnClick = aEnableSaveButtonExecute
         SkinData.SkinSection = 'CHECKBOX'
         ImgChecked = 0
@@ -423,13 +420,13 @@ object SettingsForm: TSettingsForm
       end
       object OpenMsgCheckBox: TsCheckBox
         Left = 12
-        Top = 116
+        Top = 132
         Width = 246
         Height = 20
         Caption = 'Otwieraj okno rozmowy po klikni'#281'ciu w chmurk'#281
         Checked = True
         State = cbChecked
-        TabOrder = 4
+        TabOrder = 5
         OnClick = aEnableSaveButtonExecute
         SkinData.SkinSection = 'CHECKBOX'
         ImgChecked = 0
@@ -437,17 +434,31 @@ object SettingsForm: TSettingsForm
       end
       object GoogleTTSCheckBox: TsCheckBox
         Left = 12
-        Top = 142
+        Top = 168
         Width = 240
         Height = 28
         Caption = 'Czytaj zmiany stanu za pomoc'#261' Google TTS lub wtyczki SayAQQ'
         AutoSize = False
-        TabOrder = 5
+        TabOrder = 6
         OnClick = aEnableSaveButtonExecute
         SkinData.SkinSection = 'CHECKBOX'
         ImgChecked = 0
         ImgUnchecked = 0
         WordWrap = True
+      end
+      object SiblingsExceptionsCheckBox: TsCheckBox
+        Left = 12
+        Top = 12
+        Width = 146
+        Height = 20
+        Caption = 'Uwzgl'#281'dniaj metakontakty'
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+        OnClick = aEnableSaveButtonExecute
+        SkinData.SkinSection = 'CHECKBOX'
+        ImgChecked = 0
+        ImgUnchecked = 0
       end
     end
   end
@@ -489,8 +500,8 @@ object SettingsForm: TSettingsForm
     ThirdParty.ThirdStaticText = ' '
     ThirdParty.ThirdNativePaint = ' '
     OnSysDlgInit = sSkinManagerSysDlgInit
-    Left = 32
-    Top = 296
+    Left = 40
+    Top = 280
   end
   object sSkinProvider: TsSkinProvider
     AddedTitle.Font.Charset = DEFAULT_CHARSET
@@ -500,11 +511,12 @@ object SettingsForm: TSettingsForm
     AddedTitle.Font.Style = []
     SkinData.SkinSection = 'FORM'
     TitleButtons = <>
-    Left = 64
-    Top = 296
+    Left = 72
+    Top = 280
   end
   object ActionList: TActionList
-    Top = 296
+    Left = 8
+    Top = 280
     object aExit: TAction
       Caption = 'aExit'
       ShortCut = 27
@@ -528,8 +540,8 @@ object SettingsForm: TSettingsForm
     end
   end
   object DeletePopupMenu: TPopupMenu
-    Left = 96
-    Top = 296
+    Left = 104
+    Top = 280
     object aDeleteAll: TMenuItem
       Caption = 'Usu'#324' wszystko'
       OnClick = aDeleteAllClick
