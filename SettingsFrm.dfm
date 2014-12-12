@@ -420,7 +420,7 @@ object SettingsForm: TSettingsForm
       end
       object OpenMsgCheckBox: TsCheckBox
         Left = 12
-        Top = 132
+        Top = 142
         Width = 246
         Height = 20
         Caption = 'Otwieraj okno rozmowy po klikni'#281'ciu w chmurk'#281
