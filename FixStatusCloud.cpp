@@ -46,6 +46,8 @@ TPluginAction FixStatusCloudFastSettingsItem;
 //Lista-nickow-kontatkow-----------------------------------------------------
 TStringList *ContactList = new TStringList;
 TCustomIniFile* ContactsNickList = new TMemIniFile(ChangeFileExt(Application->ExeName, ".INI"));
+//Lista-metakontaktow--------------------------------------------------------
+TStringList* SiblingsList = new TStringList;
 //Lista-JID-kontaktow-plci-zenskiej------------------------------------------
 TStringList *FemalesList = new TStringList;
 //Identyfikator-kontaktu-----------------------------------------------------
@@ -64,8 +66,7 @@ HWND hTimerFrm;
 //SETTINGS-------------------------------------------------------------------
 int ModeChk;
 TStringList *ExceptionsList = new TStringList;
-TStringList *MultiExceptionsList = new TStringList;
-bool MultiExceptionsChk;
+bool SiblingsExceptionsChk;
 bool PlaySoundChk;
 bool ShowStatusChk;
 bool OnStatusChangedChk;
@@ -172,6 +173,13 @@ int GetSaturation()
 int GetBrightness()
 {
   return (int)PluginLink.CallService(AQQ_SYSTEM_COLORGETBRIGHTNESS,0,0);
+}
+//---------------------------------------------------------------------------
+
+//Dekodowanie ciagu znakow z Base64
+UnicodeString DecodeBase64(UnicodeString Str)
+{
+  return (wchar_t*)PluginLink.CallService(AQQ_FUNCTION_BASE64,(WPARAM)Str.w_str(),2);
 }
 //---------------------------------------------------------------------------
 
@@ -443,13 +451,14 @@ INT_PTR __stdcall OnContactsUpdate(WPARAM wParam, LPARAM lParam)
 	  //Dodawanie kontatku do listy kobiet
 	  if(FemalesList->IndexOf(JID)==-1) FemalesList->Add(JID);
 	}
+    //Zamkniecie pliku INI kontaktu
 	delete Ini;
 	//Pokazywanie chmurki informacyjnej
 	if((!BlockFunction)&&((lParam==CONTACT_UPDATE_NOOFFLINE)||(lParam==CONTACT_UPDATE_ONLINE)||((OnStatusChangedChk)&&(lParam==CONTACT_UPDATE_ONLYSTATUS))||((OnOfflineChk)&&(lParam==CONTACT_UPDATE_OFFLINE))))
 	{
 	  //Wyklucz z notyfikacji jedynie zdefiniowane kontakty LUB poka¿ notyfikacjê tylko dla wybranych kontaktów
-	  if(((ModeChk==1)&&((ExceptionsList->IndexOf(JID)==-1)||((MultiExceptionsChk)&&(MultiExceptionsList->IndexOf(Nick)==-1))))
-      ||((ModeChk==2)&&((ExceptionsList->IndexOf(JID)!=-1)||((MultiExceptionsChk)&&(MultiExceptionsList->IndexOf(Nick)!=-1)))))
+	  if(((ModeChk==1)&&((ExceptionsList->IndexOf(JID)==-1)&&((SiblingsExceptionsChk)&&(SiblingsList->IndexOf(JID)==-1))))
+	  ||((ModeChk==2)&&((ExceptionsList->IndexOf(JID)!=-1)||((SiblingsExceptionsChk)&&(SiblingsList->IndexOf(JID)!=-1)))))
 	  {
 		//Pobranie szczegolowych danych dotyczacych kontatku
 		UnicodeString Resource = (wchar_t*)ContactsUpdateContact.Resource;
@@ -577,6 +586,8 @@ INT_PTR __stdcall OnContactSelected(WPARAM wParam, LPARAM lParam)
 //Hook na zaladowanie listy kontaktow
 INT_PTR __stdcall OnListReady(WPARAM wParam, LPARAM lParam)
 {
+  //Resetowanie listy metakontaktow
+  SiblingsList->Clear();
   //Pobranie ID dla enumeracji kontaktów
   ReplyListID = GetTickCount();
   //Wywolanie enumeracji kontaktow
@@ -603,11 +614,23 @@ INT_PTR __stdcall OnReplyList(WPARAM wParam, LPARAM lParam)
 	TIniFile *Ini = new TIniFile(GetContactsUserDir()+JID+".ini");
 	//Pobieranie informacji o plci kontaktu
 	UnicodeString Gender = Ini->ReadString("Buddy","Gender","");
+	//Pobieranie informacji o metakontakcie
+	UnicodeString MetaParent = DecodeBase64(Ini->ReadString("Buddy", "MetaParent", ""));
+	MetaParent = MetaParent.Trim();
+	//Zamkniecie pliku INI kontaktu
+	delete Ini;
 	//Jezeli kontakt jest kobieta :)
 	if(Gender=="RkVNQUxF")
 	 //Dodawanie kontatku do listy kobiet
 	 FemalesList->Add(JID);
-	delete Ini;
+	//Kontakt ma metakontakt
+	if(!MetaParent.IsEmpty())
+	{
+	  //Metakontakt jest dodany do listy wyjatkow
+	  if(ExceptionsList->IndexOf(MetaParent)!=-1)
+	   //Dodanie kontaktu na liste metakontaktow
+	   SiblingsList->Add(JID);
+    }
   }
 
   return 0;
@@ -782,6 +805,8 @@ INT_PTR __stdcall OnWindowEvent(WPARAM wParam, LPARAM lParam)
 	  ContactList->Clear();
 	  FemalesList->Clear();
 	  ContactsNickList->EraseSection("Nick");
+	  //Resetowanie listy metakontaktow
+	  SiblingsList->Clear();
 	  //Pobranie ID dla enumeracji kontaktów
 	  ReplyListID = GetTickCount();
 	  //Wywolanie enumeracji kontaktow
@@ -878,7 +903,6 @@ void LoadSettings()
   TIniFile *Ini = new TIniFile(GetPluginUserDir()+"\\\\FixStatusCloud\\\\Settings.ini");
   ModeChk = Ini->ReadInteger("Settings","Mode",1);
   ExceptionsList->Clear();
-  MultiExceptionsList->Clear();
   TStringList *pExceptionsList = new TStringList;
   Ini->ReadSection("Exceptions",pExceptionsList);
   int ExceptionsCount = pExceptionsList->Count;
@@ -888,14 +912,10 @@ void LoadSettings()
 	for(int Count=0;Count<ExceptionsCount;Count++)
 	{
 	  UnicodeString JID = Ini->ReadString("Exceptions","Item"+IntToStr(Count+1),"");
-	  if(!JID.IsEmpty())
-	  {
-		ExceptionsList->Add(JID);
-		MultiExceptionsList->Add(GetContactNick(JID));
-	  }
+	  if(!JID.IsEmpty()) ExceptionsList->Add(JID);
 	}
   }
-  MultiExceptionsChk = Ini->ReadBool("Settings","MultiExceptions",false);
+  SiblingsExceptionsChk = Ini->ReadBool("Settings","SiblingsExceptions",true);
   PlaySoundChk = Ini->ReadBool("Settings","PlaySound",true);
   ShowStatusChk = Ini->ReadBool("Settings","ShowStatus",false);
   OnStatusChangedChk = Ini->ReadBool("Settings","OnStatusChanged",true);

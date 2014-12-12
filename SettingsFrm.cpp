@@ -144,7 +144,7 @@ void __fastcall TSettingsForm::aLoadSettingsExecute(TObject *Sender)
 	}
   }
   ContactsListView->AlphaSort();
-  MultiExceptionsCheckBox->Checked = Ini->ReadBool("Settings","MultiExceptions",false);
+  SiblingsExceptionsCheckBox->Checked = Ini->ReadBool("Settings","SiblingsExceptions",true);
   PlaySoundCheckBox->Checked = Ini->ReadBool("Settings","PlaySound",true);
   ShowStatusCheckBox->Checked = Ini->ReadBool("Settings","ShowStatus",false);
   OnStatusChangedCheckBox->Checked = Ini->ReadBool("Settings","OnStatusChanged",true);
@@ -193,7 +193,7 @@ void __fastcall TSettingsForm::aSaveSettingsExecute(TObject *Sender)
 	for(int Count=0;Count<ContactsListView->Items->Count;Count++)
 	 Ini->WriteString("Exceptions","Item"+IntToStr(Count+1),ContactsListView->Items->Item[Count]->SubItems->Strings[0]);
   }
-  Ini->WriteBool("Settings","MultiExceptions",MultiExceptionsCheckBox->Checked);
+  Ini->WriteBool("Settings","SiblingsExceptions",SiblingsExceptionsCheckBox->Checked);
   Ini->WriteBool("Settings","PlaySound",PlaySoundCheckBox->Checked);
   Ini->WriteBool("Settings","ShowStatus",ShowStatusCheckBox->Checked);
   Ini->WriteBool("Settings","OnStatusChanged",OnStatusChangedCheckBox->Checked);
@@ -301,6 +301,16 @@ void __fastcall TSettingsForm::aDeleteAllClick(TObject *Sender)
 void __fastcall TSettingsForm::sSkinManagerSysDlgInit(TacSysDlgData DlgData, bool &AllowSkinning)
 {
   AllowSkinning = false;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TSettingsForm::ContactsListViewChange(TObject *Sender, TListItem *Item,
+          TItemChange Change)
+{
+  if(ContactsListView->Items->Count>8)
+   ContactsListView->Column[0]->Width = 233;
+  else
+   ContactsListView->Column[0]->Width = 250;
 }
 //---------------------------------------------------------------------------
 
