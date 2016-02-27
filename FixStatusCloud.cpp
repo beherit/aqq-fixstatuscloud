@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-// Copyright (C) 2013-2015 Krzysztof Grochocki
+// Copyright (C) 2013-2016 Krzysztof Grochocki
 //
 // This file is part of FixStatusCloud
 //
@@ -1104,10 +1104,10 @@ extern "C" __declspec(dllexport) PPluginInfo __stdcall AQQPluginInfo(DWORD AQQVe
   PluginInfo.ShortName = L"FixStatusCloud";
   PluginInfo.Version = PLUGIN_MAKE_VERSION(1,1,3,0);
   PluginInfo.Description = L"Poprawia funkcjonalnoœæ chmurki informacyjnej zmiany statusu kontaktu.";
-  PluginInfo.Author = L"Krzysztof Grochocki (Beherit)";
-  PluginInfo.AuthorMail = L"kontakt@beherit.pl";
-  PluginInfo.Copyright = L"Krzysztof Grochocki (Beherit)";
-  PluginInfo.Homepage = L"http://beherit.pl";
+  PluginInfo.Author = L"Krzysztof Grochocki";
+  PluginInfo.AuthorMail = L"contact@beherit.pl";
+  PluginInfo.Copyright = L"Krzysztof Grochocki";
+  PluginInfo.Homepage = L"beherit.pl";
   PluginInfo.Flag = 0;
   PluginInfo.ReplaceDefaultModule = 0;
 
